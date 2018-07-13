@@ -1,4 +1,6 @@
 # gui-builder
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FIKATS%2Fgui-builder.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FIKATS%2Fgui-builder?ref=badge_shield)
+
 
 This project aims at preparing viztools to send to an IKATS instance.
 
@@ -73,3 +75,6 @@ The repository is located on host machine at `/home/developer/vt-mysterious-vizt
 ## Common errors
 
 TODO
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FIKATS%2Fgui-builder.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FIKATS%2Fgui-builder?ref=badge_large)
