@@ -979,8 +979,12 @@ let _core_op_lib = [
                         }
                         else {
                             self.progress(100, OP_STATES.ko);
-                            console.error(r.status_msg);
-                            notify().error(r.status_msg);
+                            let error = r.status_msg;
+                            if (r.debug.status = 404) {
+                                error = "Table " + name.value + " does not exist (beware table name is case sensitive)"
+                            }
+                            console.error(error);
+                            notify().error(error);
                         }
                     },
                     error: function (r) {
