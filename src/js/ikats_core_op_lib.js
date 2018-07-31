@@ -428,47 +428,76 @@ let _core_op_lib = [
             }
         ],
         init: function () {
-            const in_ts_list = this.getInput("ts_list").getValue();
-            const param_list = this.getParameter("List");
+            const self = this;
+            const in_ts_list = self.getInput("ts_list").getValue();
+            const param_list = self.getParameter("List");
             param_list.dov = in_ts_list;
             param_list.value = in_ts_list;
-            this.progress(100, OP_STATES.idle);
+            self.progress(100, OP_STATES.idle);
         },
         onConnUpdate: function () {
-            this.progress(10, OP_STATES.idle);
-            this.init();
+            const self = this;
+            self.progress(10, OP_STATES.idle);
+            self.init();
         },
-        run: function (silent_mode) {
-            this.progress(100, OP_STATES.run);
+        run: function () {
+            const self = this;
+            self.progress(100, OP_STATES.run);
 
-            const in_ts_list = this.getInput("ts_list").getValue();
-
-            const param_name = this.getParameter("Name").value;
-            const param_desc = this.getParameter("Description").value;
-
-            const tsuid_list = in_ts_list.map(function (x) {
-                return x.tsuid;
-            });
-
-            // TODO Handle async mode for DS creation
-            const r = ikats.api.ds.create({
-                name: param_name,
-                desc: param_desc,
-                ts_list: tsuid_list
-            });
-
-            if (r.status) {
-                if (!silent_mode) {
-                    console.info("Dataset " + param_name + " created");
-                }
-
-                this.progress(100, OP_STATES.ok);
-                this.getOutput("ts_list").value = in_ts_list;
-                this.getOutput("ds").value = param_name;
+            const in_ts_list = self.getInput("ts_list").getValue();
+            const param_name = self.getParameter("Name").value;
+            const param_desc = self.getParameter("Description").value;
+            if (in_ts_list === null || param_name === "") {
+                self.progress(100, OP_STATES.ko);
+                const error = "Error occurred : at least one required input or parameter is not filled";
+                console.error(error);
+                notify().error(error);
             }
             else {
-                console.error(r.status_msg);
-                this.progress(100, OP_STATES.ko);
+                const tsuid_list = in_ts_list.map(function (x) {
+                    return x.tsuid;
+                });
+                // check dataset existence
+                ikats.api.ds.read({
+                    ds_name: param_name,
+                    async: true,
+                    success: function (r) {
+                        if (is2xx(r.debug.status)) {
+                            // dataset already exists
+                            self.progress(100, OP_STATES.ko);
+                            const error = "Dataset " + param_name + " already exists";
+                            console.error(error);
+                            notify().error(error);
+                        }
+                        else {
+                            // dataset does not exist
+                            ikats.api.ds.create({
+                                name: param_name,
+                                desc: param_desc,
+                                ts_list: tsuid_list,
+                                async: true,
+                                success: function (r) {
+                                    self.progress(100, OP_STATES.ok);
+                                    this.getOutput("ts_list").value = in_ts_list;
+                                    this.getOutput("ds").value = param_name;
+                                    const info = "Dataset " + param_name + " created";
+                                    console.info(info);
+                                    notify().info(info)
+                                },
+                                error: function (r) {
+                                    self.progress(100, OP_STATES.ko);
+                                    console.error(r.debug.responseText);
+                                    notify().error(r.debug.responseText);
+                                }
+                            });
+                        }
+                    },
+                    error: function (r) {
+                        self.progress(100, OP_STATES.ko);
+                        console.error(r.debug.responseText);
+                        notify().error(r.debug.responseText);
+                    }
+                });
             }
         }
     },
@@ -578,7 +607,7 @@ let _core_op_lib = [
         },
         run: function () {
             const self = this;
-            this.progress(100, OP_STATES.run);
+            self.progress(100, OP_STATES.run);
 
             const file = self.getParameter("file");
             const row_name = self.getParameter("row_name");
