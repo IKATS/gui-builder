@@ -84,18 +84,6 @@ let _core_op_lib = [
         label: "Dataset Selection",
         description: "Get a TS list from a dataset name",
         family: "Dataset Preparation/Dataset Management",
-        outputs: [
-            {
-                name: "ts_list",
-                label: "TS list",
-                type: "ts_list"
-            },
-            {
-                name: "Name",
-                label: "DSname",
-                type: "ds_name"
-            }
-        ],
         parameters: [
             {
                 name: "Source",
@@ -106,6 +94,18 @@ let _core_op_lib = [
                 onEvent: function (node) {
                     node.run();
                 }
+            }
+        ],
+        outputs: [
+            {
+                name: "ts_list",
+                label: "TS list",
+                type: "ts_list"
+            },
+            {
+                name: "Name",
+                label: "DSname",
+                type: "ds_name"
             }
         ],
         init: function () {
@@ -134,20 +134,27 @@ let _core_op_lib = [
             const param = self.getParameter("Source");
             const out_ts_list = self.getOutput("ts_list");
             const out_ds_name = self.getOutput("Name");
-
-            ikats.api.ds.read({
-                ds_name: param.value.name,
-                async: true,
-                success: function (r) {
-                    out_ts_list.value = r.data.ts_list;
-                    out_ds_name.value = param.value.name;
-                    self.progress(100, OP_STATES.ok);
-                },
-                error: function (r) {
-                    self.progress(100, OP_STATES.ko);
-                    console.error("Error occurred " + r.status_msg);
-                }
-            });
+            if (param.value === null) {
+                self.progress(100, OP_STATES.ko);
+                const error = "Error occurred : at least one required input or parameter is not filled";
+                console.error(error);
+                notify().error(error);
+            }
+            else {
+                ikats.api.ds.read({
+                    ds_name: param.value.name,
+                    async: true,
+                    success: function (r) {
+                        out_ts_list.value = r.data.ts_list;
+                        out_ds_name.value = param.value.name;
+                        self.progress(100, OP_STATES.ok);
+                    },
+                    error: function (r) {
+                        self.progress(100, OP_STATES.ko);
+                        console.error("Error occurred " + r.status_msg);
+                    }
+                });
+            }
         }
     },
     {
@@ -163,6 +170,19 @@ let _core_op_lib = [
                 type: "ts_list"
             }
         ],
+        parameters: [
+            {
+                name: "Criteria",
+                label: "Criteria",
+                type: "md_filter",
+                description: "Filter the input data according to meta-data",
+                default_value: [{}],
+                dov: null,
+                onEvent: function (node) {
+                    node.run();
+                }
+            }
+        ],
         outputs: [
             {
                 name: "TS",
@@ -175,19 +195,6 @@ let _core_op_lib = [
                 label: "Ratio",
                 type: "percentage",
                 value: null
-            }
-        ],
-        parameters: [
-            {
-                name: "Criteria",
-                label: "Criteria",
-                type: "md_filter",
-                description: "Filter the input data according to meta-data",
-                default_value: [{}],
-                dov: null,
-                onEvent: function (node) {
-                    node.run();
-                }
             }
         ],
         init: function () {
@@ -207,91 +214,91 @@ let _core_op_lib = [
             this.progress(100, OP_STATES.idle);
         },
         run: function () {
-            this.progress(10, OP_STATES.run);
-
-            let in_ts_list = this.getInput("TS").getValue();
-            if ((in_ts_list === null) || (in_ts_list.length === 0)) {
-                this.progress(100, OP_STATES.idle);
-                return;
-            }
-
-            let dsName = "";
-            if (typeof (in_ts_list) === "string") {
-                dsName = in_ts_list;
-                in_ts_list = [];
-            }
-
-            this.progress(100, OP_STATES.run);
-
-            const param_criteria = this.getParameter("Criteria");
-            const criteria_to_send = JSON.parse(angular.toJson(param_criteria.value));
-
-            // Convert date into timestamp EPOCH milliseconds
-            criteria_to_send.map(function (x) {
-                if ((param_criteria.dov[x.meta_name] === "date") && (x.comparator.indexOf("like") === -1)) {
-                    if (/^\d+$/.test(x.value)) {
-                        // Timestamp provided
-                        x.value = parseInt(x.value, 10);
-                    }
-                    else {
-                        try {
-                            x.value = Date.parse(x.value);
-                        }
-                        catch (e) {
-                            console.error("Error while parsing the value of " + x.meta_name);
-                        }
-                    }
-                }
-            });
-
-            const out_ts_list = this.getOutput("TS");
-            const out_ratio = this.getOutput("Ratio");
-
-
             const self = this;
+            self.progress(100, OP_STATES.run);
 
-            ikats.api.ts.list({
-                async: true,
-                ds_name: dsName,
-                ts_list: in_ts_list,
-                criteria: criteria_to_send,
-                success: function (r) {
-                    out_ts_list.value = r.data;
+            let in_ts_list = self.getInput("TS").getValue();
+            let param_criteria = self.getParameter("Criteria");
+            if (in_ts_list === null) {
+                self.progress(100, OP_STATES.ko);
+                const error = "Error occurred : at least one required input or parameter is not filled";
+                console.error(error);
+                notify().error(error);
+            }
+            else {
 
-                    // Ratio precision
-                    let precision = 3;
-
-                    out_ratio.value = parseInt(
-                        Math.pow(10, precision) *
-                        out_ts_list.value.length / in_ts_list.length, 10) *
-                        Math.pow(10, -precision);
-                    if (dsName === "") {
-                        notify().info(out_ts_list.value.length + " TS filtered");
-                        console.info(out_ts_list.value.length + " TS filtered out of " + in_ts_list.length + " (" + out_ratio.value + "%)");
-                    }
-                    else {
-                        console.info(out_ts_list.value.length + " TS filtered");
-                    }
-
-                    self.progress(100, OP_STATES.ok);
-
-                },
-                error: function (r) {
-
-                    if (r.debug.status === 404) {
-                        out_ratio.value = 0;
-                        out_ts_list.value = [];
-                        self.progress(100, OP_STATES.ok);
-                        notify().info("No results");
-                        console.error("No results");
-                    }
-                    else {
-                        self.progress(100, OP_STATES.ko);
-                        notify().error(r.status_msg);
-                        console.error(r.status_msg);
-                    }
+                let dsName = "";
+                if (typeof (in_ts_list) === "string") {
+                    dsName = in_ts_list;
+                    in_ts_list = [];
                 }
-            });
+
+                const criteria_to_send = JSON.parse(angular.toJson(param_criteria.value));
+
+                // Convert date into timestamp EPOCH milliseconds
+                criteria_to_send.map(function (x) {
+                    if ((param_criteria.dov[x.meta_name] === "date") && (x.comparator.indexOf("like") === -1)) {
+                        if (/^\d+$/.test(x.value)) {
+                            // Timestamp provided
+                            x.value = parseInt(x.value, 10);
+                        }
+                        else {
+                            try {
+                                x.value = Date.parse(x.value);
+                            }
+                            catch (e) {
+                                console.error("Error while parsing the value of " + x.meta_name);
+                            }
+                        }
+                    }
+                });
+
+                const out_ts_list = self.getOutput("TS");
+                const out_ratio = self.getOutput("Ratio");
+
+                ikats.api.ts.list({
+                    async: true,
+                    ds_name: dsName,
+                    ts_list: in_ts_list,
+                    criteria: criteria_to_send,
+                    success: function (r) {
+                        out_ts_list.value = r.data;
+
+                        // Ratio precision
+                        let precision = 3;
+
+                        out_ratio.value = parseInt(
+                            Math.pow(10, precision) *
+                            out_ts_list.value.length / in_ts_list.length, 10) *
+                            Math.pow(10, -precision);
+                        if (dsName === "") {
+                            notify().info(out_ts_list.value.length + " TS filtered");
+                            console.info(out_ts_list.value.length + " TS filtered out of " + in_ts_list.length + " (" + out_ratio.value + "%)");
+                        }
+                        else {
+                            console.info(out_ts_list.value.length + " TS filtered");
+                        }
+
+                        self.progress(100, OP_STATES.ok);
+
+                    },
+                    error: function (r) {
+
+                        if (r.debug.status === 404) {
+                            out_ratio.value = 0;
+                            out_ts_list.value = [];
+                            self.progress(100, OP_STATES.ok);
+                            notify().info("No results");
+                            console.error("No results");
+                        }
+                        else {
+                            self.progress(100, OP_STATES.ko);
+                            notify().error(r.status_msg);
+                            console.error(r.status_msg);
+                        }
+                    }
+                });
+            }
         }
     },
     {
@@ -307,14 +314,6 @@ let _core_op_lib = [
                 type: "ts_list"
             }
         ],
-        outputs: [
-            {
-                name: "ts_list",
-                label: "TS list",
-                type: "ts_list",
-                value: null
-            }
-        ],
         parameters: [
             {
                 name: "Selection",
@@ -326,6 +325,14 @@ let _core_op_lib = [
                 onEvent: function (node) {
                     node.run();
                 }
+            }
+        ],
+        outputs: [
+            {
+                name: "ts_list",
+                label: "TS list",
+                type: "ts_list",
+                value: null
             }
         ],
         init: function () {
@@ -367,13 +374,22 @@ let _core_op_lib = [
             }
         },
         run: function () {
-            const param_list = this.getParameter("Selection").value;
-            const out_ts_list = this.getOutput("ts_list");
-            out_ts_list.value = param_list;
-            if (out_ts_list.value) {
-                this.progress(100, OP_STATES.ok);
-            } else {
-                this.progress(100, OP_STATES.idle);
+            const self = this;
+            const param_list = self.getParameter("Selection").value;
+            const out_ts_list = self.getOutput("ts_list");
+            if (param_list === null) {
+                self.progress(100, OP_STATES.ko);
+                const error = "Error occurred : no selection";
+                console.error(error);
+                notify().error(error);
+            }
+            else {
+                out_ts_list.value = param_list;
+                if (out_ts_list.value) {
+                    self.progress(100, OP_STATES.ok);
+                } else {
+                    self.progress(100, OP_STATES.idle);
+                }
             }
         }
     },
@@ -526,39 +542,45 @@ let _core_op_lib = [
                 type: "ts_list"
             }
         ],
-        parameters: [],
         onConnUpdate: function () {
         },
         run: function () {
-            this.progress(100, OP_STATES.run);
+            const self = this;
+            self.progress(100, OP_STATES.run);
 
-            const in_ts_1 = this.getInput("TS_1").getValue();
-            const in_ts_2 = this.getInput("TS_2").getValue();
-
-            const out_ts_list = this.getOutput("Merged");
-
-            // Remove duplicates
-            const dup_keys = {};
-            let tmp_list = [];
-            if (in_ts_1 !== null) {
-                tmp_list = tmp_list.concat(in_ts_1);
-            }
-            if (in_ts_2 !== null) {
-                tmp_list = tmp_list.concat(in_ts_2);
-            }
-            if (tmp_list.length > 0) {
-                tmp_list.map(function (x) {
-                    dup_keys[x.tsuid] = x.funcId;
-                });
-                out_ts_list.value = [];
-                for (let k in dup_keys) {
-                    out_ts_list.value.push({tsuid: k, funcId: dup_keys[k]});
-                }
-                this.progress(100, OP_STATES.ok);
+            const in_ts_1 = self.getInput("TS_1").getValue();
+            const in_ts_2 = self.getInput("TS_2").getValue();
+            const out_ts_list = self.getOutput("Merged");
+            if (in_ts_1 === null && in_ts_2 === null) {
+                self.progress(100, OP_STATES.ko);
+                const error = "Error occurred : at least one required input or parameter is not filled";
+                console.error(error);
+                notify().error(error);
             }
             else {
-                out_ts_list.value = null;
-                this.progress(100, OP_STATES.ko);
+                // Remove duplicates
+                const dup_keys = {};
+                let tmp_list = [];
+                if (in_ts_1 !== null) {
+                    tmp_list = tmp_list.concat(in_ts_1);
+                }
+                if (in_ts_2 !== null) {
+                    tmp_list = tmp_list.concat(in_ts_2);
+                }
+                if (tmp_list.length > 0) {
+                    tmp_list.map(function (x) {
+                        dup_keys[x.tsuid] = x.funcId;
+                    });
+                    out_ts_list.value = [];
+                    for (let k in dup_keys) {
+                        out_ts_list.value.push({tsuid: k, funcId: dup_keys[k]});
+                    }
+                    self.progress(100, OP_STATES.ok);
+                }
+                else {
+                    out_ts_list.value = null;
+                    self.progress(100, OP_STATES.ko);
+                }
             }
 
         }
@@ -654,7 +676,6 @@ let _core_op_lib = [
         description: "Find a TS by its TSUID/FID pattern",
         family: "Dataset Preparation/Dataset Management",
         op_id: 9,
-        inputs: [],
         outputs: [
             {
                 name: "out",
@@ -1189,40 +1210,44 @@ let _core_op_lib = [
     {
         name: "IngestTS",
         label: "Import TS",
-        description: "Import new Timeseries",
+        description: "Time series ingestion in IKATS",
         family: "Dataset Preparation/Import Export",
         op_id: 17,
-        inputs: [],
         parameters: [
             {
                 name: "dataset",
                 label: "Dataset name",
                 description: "The name of the created dataset",
-                type: "text"
+                type: "text",
+                default_value: null,
             },
             {
                 name: "description",
                 label: "Description",
                 description: "A description of this dataset",
-                type: "text"
+                type: "text",
+                default_value: null,
             },
             {
                 name: "rootPath",
                 label: "Root Path",
                 description: "The root path of the data files on server side",
-                type: "text"
+                type: "text",
+                default_value: null,
             },
             {
                 name: "pathPattern",
                 label: "Path mapping rule",
                 description: "Regex pattern for defining metric over metadata (ex: /data/(?<metric>.*)\\.txt)",
-                type: "text"
+                type: "text",
+                default_value: null,
             },
             {
                 name: "funcIdPattern",
                 label: "FID name rule",
                 description: "Pattern used to define name of each TS (ex: test_PORTFOLIO_${metric})",
-                type: "text"
+                type: "text",
+                default_value: null,
             }
         ],
         outputs: [
@@ -1279,6 +1304,7 @@ let _core_op_lib = [
                     id: self.pid,
                     success: function (r, txt_status, xhr) {
                         let progression = parseInt(r.data.rateOfImportedItems, 10);
+                        if (isNaN(progression)) progression = 0;
                         switch (r.data.sessionStatus) {
                             case "CREATED":
                             case "ANALYSED":
@@ -1291,7 +1317,7 @@ let _core_op_lib = [
                             case "COMPLETED":
                                 // It is possible to have "COMPLETED" without 100% progress
                                 // So need to refresh the progress field.
-                                self.progress(progression, OP_STATES.ok);
+                                self.progress(Math.max(progression, 10), OP_STATES.ok);
                                 console.debug(r.data);
                                 out_dataset.value = self.getParameter("dataset").value;
                                 out_ts_list.value = ikats.api.ds.read(out_dataset.value).data.ts_list;
@@ -1332,7 +1358,7 @@ let _core_op_lib = [
         },
         run: function () {
             const self = this;
-            this.progress(0, OP_STATES.run);
+            self.progress(100, OP_STATES.run);
 
             const in_dataset = self.getParameter("dataset").value;
             const in_description = self.getParameter("description").value;
@@ -1343,7 +1369,7 @@ let _core_op_lib = [
             // Factorized Success Callback (used by both start & restart api calls)
             let successCallback = function (r) {
                 if (is2xx(r.debug.status)) {
-                    self.progress(0, OP_STATES.run);
+                    self.progress(100, OP_STATES.run);
                     if (!isNumber(self.pid)) {
                         self.pid = parseInt(r.data, 10);
                     }
@@ -1363,8 +1389,9 @@ let _core_op_lib = [
 
             if ([in_dataset, in_description, in_rootPath, in_pathPattern, in_funcIdPattern].some(x => x === null)) {
                 self.progress(100, OP_STATES.ko);
-                console.error("All parameters are mandatory");
-                notify().error("All parameters are mandatory");
+                const error = "Error occurred : at least one required input or parameter is not filled"
+                console.error(error);
+                notify().error(error);
             }
             else {
                 // importer and serializer are hard written because user doesn't need to set it for now

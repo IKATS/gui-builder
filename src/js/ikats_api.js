@@ -268,7 +268,7 @@ ikats.common.trigger_error_callback = function(result, xhr, param) {
       result.status = false;
 
       // The HTTP message will be enough explicit to be understood
-      result.status_msg = xhr.statusText;
+      result.status_msg = result.xhr.statusText;
 
       // If any message appear in body, use it as data (and test if its JSON can be parsed)
       try {
@@ -1353,10 +1353,7 @@ ikats.api.ts.list = function(p_args) {
     // No criteria found, return all TS
     result.status = true;
     result.status_msg = "No criteria, returning inputs TS";
-    result.data = {
-      tsList: p.ts_list,
-      criteria: p.criteria
-    };
+    result.data = p.ts_list;
     // Trigger the callback if defined
     ikats.common.callback(p.success, result);
   }
