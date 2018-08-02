@@ -1153,9 +1153,9 @@ let _core_op_lib = [
             const outputTableName = self.getParameter("outputTableName");
             const out_table = self.getOutput("outputTable");
 
-            if (outputTableName.value === null) {
+            if (outputTableName.value === null || table1 === null || table2 === null || joinOn == null) {
                 self.progress(100, OP_STATES.ko);
-                const errorMessage = "Output Table is not filled";
+                const errorMessage = "Error occurred : at least one required input or parameter is not filled";
                 console.error(errorMessage);
                 notify().error(errorMessage);
             }
