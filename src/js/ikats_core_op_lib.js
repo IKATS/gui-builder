@@ -377,7 +377,7 @@ let _core_op_lib = [
             const self = this;
             const param_list = self.getParameter("Selection").value;
             const out_ts_list = self.getOutput("ts_list");
-            if (param_list === null) {
+            if ((param_list === null) || (param_list.length === 0)) {
                 self.progress(100, OP_STATES.ko);
                 const error = "Error occurred : no selection";
                 console.error(error);
@@ -1001,8 +1001,8 @@ let _core_op_lib = [
                         else {
                             self.progress(100, OP_STATES.ko);
                             let error = r.status_msg;
-                            if (r.debug.status = 404) {
-                                error = "Table " + name.value + " does not exist (beware table name is case sensitive)"
+                            if (r.debug.status === 404) {
+                                error = "Table " + name.value + " does not exist (beware table name is case sensitive)";
                             }
                             console.error(error);
                             notify().error(error);
