@@ -3881,12 +3881,6 @@ ikats.api.table.trainTestSplit = function(p_args) {
     ikats.common.callback(p.error, result);
     return result;
   }
-  if (p.targetColumnName === null) {
-    console.error("targetColumnName must be filled");
-    // Trigger the callback if defined
-    ikats.common.callback(p.error, result);
-    return result;
-  }
   if (p.repartitionRate === null) {
     console.error("repartitionRate must be filled");
     // Trigger the callback if defined

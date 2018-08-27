@@ -1036,7 +1036,7 @@ let _core_op_lib = [
                 label: "Column target name",
                 description: "Name of the column target in input table, if exists (not mandatory)",
                 type: "text",
-                default_value: null,
+                default_value: "",
             },
             {
                 name: "repartitionRate",
@@ -1082,9 +1082,9 @@ let _core_op_lib = [
             const trainTable = self.getOutput("trainTable");
             const testTable = self.getOutput("testTable");
 
-            if (targetColumnName.value === null || repartitionRate.value === null || outputTableName.value === null) {
+            if (repartitionRate.value === null || outputTableName.value === null) {
                 self.progress(100, OP_STATES.ko);
-                const error = "Error occurred : at least one parameter is not filled";
+                const error = "Error occurred : at least one mandatory parameter is not filled";
                 console.error(error);
                 notify().error(error);
             }
