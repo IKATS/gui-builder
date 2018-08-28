@@ -1034,16 +1034,16 @@ let _core_op_lib = [
             {
                 name: "targetColumnName",
                 label: "Column target name",
-                description: "Name of the column target in input table, if exists (not mandatory)",
+                description: "Name of the column target in input table (not mandatory). The split is realized respecting the repartition of values in this column.",
                 type: "text",
                 default_value: "",
             },
             {
                 name: "repartitionRate",
                 label: "Repartition rate",
-                description: "Repartition rate between training and test sets in output (ex: rate= 0.6 => 60% train, 40% test)",
-                type: "number",
-                default_value: null,
+                description: "Repartition rate between training and test sets in output (ex: rate= 0,6 => 60% train, 40% test)",
+                type: "text",
+                default_value: "0,7",
             },
             {
                 name: "outputTableName",
@@ -1082,6 +1082,7 @@ let _core_op_lib = [
             const trainTable = self.getOutput("trainTable");
             const testTable = self.getOutput("testTable");
 
+
             if (repartitionRate.value === null || outputTableName.value === null) {
                 self.progress(100, OP_STATES.ko);
                 const error = "Error occurred : at least one mandatory parameter is not filled";
@@ -1089,31 +1090,40 @@ let _core_op_lib = [
                 notify().error(error);
             }
             else {
-                ikats.api.table.trainTestSplit({
-                    tableName: tableName,
-                    targetColumnName: targetColumnName.value,
-                    repartitionRate: repartitionRate.value,
-                    outputTableName: outputTableName.value,
-                    async: true,
-                    success: function (r) {
-                        if (is2xx(r.debug.status)) {
-                            const TableNameList = r.data.split(",");
-                            trainTable.value = TableNameList[0];
-                            testTable.value = TableNameList[1];
-                            self.progress(100, OP_STATES.ok);
-                        }
-                        else {
+                const repRateFloat = parseFloat(repartitionRate.value.replace(",", "."));
+                if (isNaN(repRateFloat)){
+                    self.progress(100, OP_STATES.ko);
+                    const error = "Incorrect repartition rate";
+                    console.error(error);
+                    notify().error(error);
+                }
+                else {
+                    ikats.api.table.trainTestSplit({
+                        tableName: tableName,
+                        targetColumnName: targetColumnName.value,
+                        repartitionRate: repRateFloat,
+                        outputTableName: outputTableName.value,
+                        async: true,
+                        success: function (r) {
+                            if (is2xx(r.debug.status)) {
+                                const TableNameList = r.data.split(",");
+                                trainTable.value = TableNameList[0];
+                                testTable.value = TableNameList[1];
+                                self.progress(100, OP_STATES.ok);
+                            }
+                            else {
+                                self.progress(100, OP_STATES.ko);
+                                console.error(r.status_msg);
+                                notify().error(r.status_msg);
+                            }
+                        },
+                        error: function (r) {
                             self.progress(100, OP_STATES.ko);
-                            console.error(r.status_msg);
-                            notify().error(r.status_msg);
+                            console.error(r.debug.responseText);
+                            notify().error(r.debug.responseText);
                         }
-                    },
-                    error: function (r) {
-                        self.progress(100, OP_STATES.ko);
-                        console.error(r.debug.responseText);
-                        notify().error(r.debug.responseText);
-                    }
-                });
+                    });
+                }
             }
         }
     },
