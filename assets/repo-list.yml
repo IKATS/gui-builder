@@ -27,7 +27,7 @@
 - url: https://github.com/IKATS/vt-raw.git
   ref: 0.8.0
 - url: https://github.com/IKATS/vt-sax.git
-  ref: 0.8.0
+  ref: 0.8.1
 - url: https://github.com/IKATS/vt-scatter-plot-ts.git
   ref: 0.8.0
 - url: https://github.com/IKATS/vt-table.git
