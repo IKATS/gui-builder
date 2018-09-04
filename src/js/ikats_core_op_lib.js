@@ -494,8 +494,8 @@ let _core_op_lib = [
                                 async: true,
                                 success: function (r) {
                                     self.progress(100, OP_STATES.ok);
-                                    this.getOutput("ts_list").value = in_ts_list;
-                                    this.getOutput("ds").value = param_name;
+                                    self.getOutput("ts_list").value = in_ts_list;
+                                    self.getOutput("ds").value = param_name;
                                     const info = "Dataset " + param_name + " created";
                                     console.info(info);
                                     notify().info(info)
