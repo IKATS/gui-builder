@@ -218,8 +218,6 @@
                                  uib-tooltip="{{node.desc}}">
                                 <span>{{node.label}}</span>
                                 <br/>
-                                <br ng-if="catalogCtrl.tree_search_results.length == 0 && catalogCtrl.tree_search_pattern != ''" />
-                                <small ng-if="catalogCtrl.tree_search_results.length > 0" class="text-muted">{{node.family}}</small>
                             </div>
 
                             <!-- The node is an operator, we can't append a child node to it -->
