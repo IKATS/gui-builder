@@ -420,15 +420,6 @@ let _core_op_lib = [
         ],
         parameters: [
             {
-                name: "List",
-                label: "TS List",
-                type: "ts_selection",
-                description: "Select the TS to save",
-                default_value: null,
-                value: null,
-                dov: null
-            },
-            {
                 name: "Name",
                 label: "Dataset Name",
                 type: "text",
@@ -446,9 +437,6 @@ let _core_op_lib = [
         init: function () {
             const self = this;
             const in_ts_list = self.getInput("ts_list").getValue();
-            const param_list = self.getParameter("List");
-            param_list.dov = in_ts_list;
-            param_list.value = in_ts_list;
             self.progress(100, OP_STATES.idle);
         },
         onConnUpdate: function () {
