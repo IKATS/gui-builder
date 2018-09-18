@@ -29,6 +29,7 @@ gulp build
 
 # Update API endpoints
 gulp \
+    --version="${IKATS_VERSION}" \
     --tomee=${TOMEE_ADDR} \
     --tomcat=${TOMCAT_ADDR} \
     --gunicorn=${GUNICORN_ADDR} \
