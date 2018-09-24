@@ -21,6 +21,7 @@ var famDir = 'fam';
 // Update API endpoints
 gulp.task("set-api-endpoints", function () {
   return gulp.src(`${destination}/js/ikats_api.js`)
+    .pipe(replace(/ikats\.constants\.version = .*;/, `ikats.constants.version = "${gutil.env.version}";`))
     .pipe(replace(/ikats\.constants\.tomee_addr = .*;/, `ikats.constants.tomee_addr = "${gutil.env.tomee}";`))
     .pipe(replace(/ikats\.constants\.gunicorn_addr = .*;/, `ikats.constants.gunicorn_addr = "${gutil.env.gunicorn}";`))
     .pipe(replace(/ikats\.constants\.tomcat_addr = .*;/, `ikats.constants.tomcat_addr = "${gutil.env.tomcat}";`))

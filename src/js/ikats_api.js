@@ -121,6 +121,11 @@ const ikats = {
 /**
  * IKATS global constants
  **********************************************************************************************************************/
+
+// IKATS version
+ikats.constants.version = "No version";
+$(".footer").append("<span>" + ikats.constants.version + "</span>");
+
 // Root address of the common IKATS API to connect to
 ikats.constants.tomee_addr = "127.0.0.1:8081";
 ikats.constants.gunicorn_addr = "127.0.0.1:8000";
