@@ -118,8 +118,7 @@ NODE.prototype.toJson = function () {
 NODE.prototype.fromJson = function (json, wf) {
     const self = this;
 
-    self.op_info = new OP_INFO(this, json.op_info.op_id, json.op_info.isAlgo);
-    self.op_info.name = json.op_info.name;
+    self.op_info = new OP_INFO(this, json.op_info.name, json.op_info.isAlgo);
     self.op_info.read();
     self.op_info.fromJson(json.op_info);
 

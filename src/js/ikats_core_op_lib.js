@@ -24,12 +24,10 @@ const CORE_OPERATORS_LIB = [];
  * Create the core operator list as {@link OP_INFO} type using a generic raw object
  */
 function BuildCoreOperatorsList() {
-    let op_id = 1;
     _core_op_lib.forEach(function (ref_op) {
 
-        const op = new OP_INFO(null, op_id++, false);
+        const op = new OP_INFO(null, ref_op.name, false);
 
-        op.name = ref_op.name || "No name";
         op.desc = ref_op.description || "No description";
         op.label = ref_op.label || ref_op.name || "No label";
         op.family = ref_op.family || "No family";
@@ -68,7 +66,6 @@ function BuildCoreOperatorsList() {
             op.onConnUpdate = ref_op.onConnUpdate;
         }
 
-
         CORE_OPERATORS_LIB.push(op);
     });
 }
@@ -80,7 +77,7 @@ function BuildCoreOperatorsList() {
  */
 let _core_op_lib = [
     {
-        name: "Dataset Selection",
+        name: "dataset_selection",
         label: "Dataset Selection",
         description: "Get a TS list from a dataset name",
         family: "Dataset Preparation/Dataset Management",
@@ -158,11 +155,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "Filter",
+        name: "filter",
         label: "Filter",
         description: "Filter TS using metadata",
         family: "Dataset Preparation/Dataset Management",
-        op_id: 2,
         inputs: [
             {
                 name: "TS",
@@ -302,11 +298,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "Manual Selection",
+        name: "manual_selection",
         label: "Manual Selection",
         description: "Manually filter a TS list",
         family: "Dataset Preparation/Dataset Management",
-        op_id: 3,
         inputs: [
             {
                 name: "TS",
@@ -394,10 +389,9 @@ let _core_op_lib = [
         }
     },
     {
-        name: "Save as dataset",
+        name: "save_dataset",
         label: "Save as dataset",
         description: "Save a list of TS as a new Dataset",
-        op_id: 4,
         family: "Dataset Preparation/Dataset Management",
         inputs: [
             {
@@ -506,10 +500,9 @@ let _core_op_lib = [
         }
     },
     {
-        name: "Merge TS lists",
+        name: "merge_ts_lists",
         label: "Merge TS lists",
         description: "Merge 2 TS lists into 1",
-        op_id: 5,
         family: "Dataset Preparation/Dataset Management",
         inputs: [
             {
@@ -574,11 +567,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "Population Selection",
+        name: "population_selection",
         label: "Population Selection",
         description: "CSV file ingestion to create a population table",
         family: "Data Modeling/Supervised Learning",
-        op_id: 7,
         parameters: [
             {
                 name: "file",
@@ -659,11 +651,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "TSFinder",
+        name: "ts_finder",
         label: "TS Finder",
         description: "Find a TS by its TSUID/FID pattern",
         family: "Dataset Preparation/Dataset Management",
-        op_id: 9,
         outputs: [
             {
                 name: "out",
@@ -722,11 +713,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "Ts2Feature",
+        name: "ts2feature",
         label: "Ts2Feature",
         description: "Transforming table to feature",
         family: "Pre-Processing On Ts/Transforming",
-        op_id: 12,
         inputs: [
             {
                 name: "table",
@@ -815,11 +805,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "AddTsColumn",
+        name: "add_ts_column",
         label: "AddTsColumn",
         description: "Join a table with metrics values",
         family: "Processing On Tables",
-        op_id: 13,
         inputs: [
             {
                 name: "table",
@@ -934,11 +923,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "ReadTable",
+        name: "read_table",
         label: "Read Table",
         description: "Read a table from its identifier",
         family: "Processing On Tables",
-        op_id: 14,
         inputs: [],
         parameters: [
             {
@@ -1006,11 +994,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "TrainTestSplit",
+        name: "train_test_split",
         label: "TrainTestSplit",
         description: "Split table into training and testing sets",
         family: "Processing On Tables",
-        op_id: 15,
         inputs: [
             {
                 name: "table",
@@ -1116,11 +1103,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "MergeTables",
+        name: "merge_tables",
         label: "Merge Tables",
         description: "Merge 2 tables into one",
         family: "Processing On Tables",
-        op_id: 16,
         inputs: [
             {
                 name: "table1",
@@ -1206,11 +1192,10 @@ let _core_op_lib = [
         }
     },
     {
-        name: "IngestTS",
+        name: "ingest_ts",
         label: "Import TS",
         description: "Time series ingestion in IKATS",
         family: "Dataset Preparation/Import Export",
-        op_id: 17,
         parameters: [
             {
                 name: "dataset",
@@ -1466,7 +1451,6 @@ let _core_op_lib = [
         label: "Import Metadata",
         description: "CSV file import to fill metadata",
         family: "Dataset Preparation/Import Export",
-        op_id: 18,
         parameters: [
             {
                 name: "file",
