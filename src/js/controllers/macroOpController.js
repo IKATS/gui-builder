@@ -112,7 +112,6 @@ angular.module("ikatsapp.controllers").controller("MacroOpController", ["toastr"
             name: wf.selectionName,
             description: wf.selectionDesc || "",
             data: selection,
-            custom: true,
             success: function () {
                 toastr.success(mode + " operator " + wf.selectionName + " saved", " Added operator");
                 // Reset name :

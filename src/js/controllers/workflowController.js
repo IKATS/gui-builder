@@ -689,7 +689,7 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
         // self case happen after clearing the toAddToWorkflow variable.
         return;
       }
-      if (thing.custom) { // If the thing to append is a custom OP or a Macro
+      if (thing.macroOp) { // If the thing to append is a Macro Operator
         // Append the macro
         self.appendMacro(thing.id);
         // Cleans the variable toAddToWorkflow

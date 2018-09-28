@@ -1372,7 +1372,7 @@ let _core_op_lib = [
 
             if ([in_dataset, in_description, in_rootPath, in_pathPattern, in_funcIdPattern].some(x => x === null)) {
                 self.progress(100, OP_STATES.ko);
-                const error = "Error occurred : at least one required input or parameter is not filled"
+                const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
             }
