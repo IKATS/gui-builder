@@ -275,11 +275,11 @@ OP_OUTPUT.prototype.getValue = function () {
  *
  * @param {?NODE} node node containing the operator
  * @param {number} id operator unique Id
+ * @param {string} name operator unique name
  * @param {boolean} isAlgo indicate the origin of the operator (true:Algo, false:core Operator)
  *
- * @property {number} op_id operator unique Id
  * @property {string} label displayed name of the operator
- * @property {string} name functional name of the operator
+ * @property {string} name unique functional name of the operator
  * @property {string} desc description of the operator
  * @property {string} algo subtitle to use for this operator
  * @property {string} family category of the operator
@@ -293,10 +293,9 @@ OP_OUTPUT.prototype.getValue = function () {
  *
  * @returns {OP_INFO}
  */
-function OP_INFO(node, id, isAlgo) {
-    this.op_id = id; //Operator ID
+function OP_INFO(node, name, isAlgo) {
     this.label = "No label"; //Name to display
-    this.name = "No name"; //Functional name
+    this.name = name;
     this.desc = "No description";
     this.algo = "No algo";
     this.family = "No Family";
@@ -524,7 +523,6 @@ OP_INFO.prototype.readFromCatalog = function () {
     // Get full object
     const results = ikats.api.op.read(self.name);
     if (results.status) {
-        self.op_id = results.data.id || null;
         self.name = results.data.name || "";
         self.desc = results.data.description || "";
         self.label = results.data.label || "";
@@ -550,7 +548,7 @@ OP_INFO.prototype.readFromCatalog = function () {
         self.pid = null;
     }
     else {
-        console.error("Error while gathering information for " + self.op_id);
+        console.error("Error while gathering information for " + self.name);
     }
 };
 /**
@@ -567,7 +565,7 @@ OP_INFO.prototype.readCore = function () {
 
     // Get full object
     const raw_list = CORE_OPERATORS_LIB.filter(function (x) {
-        return x.op_id === self.op_id;
+        return x.name === self.name;
     });
     if (raw_list.length === 0) {
         throw Error("Operator looks to have been removed or modified in catalog, operator will not be loaded");
@@ -706,7 +704,7 @@ OP_INFO.prototype.run = function () {
 
     ikats.api.op.run({
             async: true,
-            op_id: self.op_id,
+            name: self.name,
             args: arguments_to_send,
             async_run: true,
             success: function (result) {
@@ -838,7 +836,7 @@ OP_INFO.prototype.init = function () {
 OP_INFO.prototype.clone = function () {
     const original = this;
 
-    const clone = new OP_INFO(original.parent, original.op_id, original.isAlgo);
+    const clone = new OP_INFO(original.parent, original.name, original.isAlgo);
 
     clone.label = original.label;
     clone.name = original.name;
@@ -869,7 +867,6 @@ OP_INFO.prototype.toJson = function () {
 
     const json = {};
 
-    json.op_id = self.op_id;
     json.name = self.name;
     json.isAlgo = self.isAlgo;
     json._progress = self._progress;
@@ -917,7 +914,6 @@ OP_INFO.prototype.attachPID = function (pid) {
 OP_INFO.prototype.fromJson = function (json) {
     const self = this;
 
-    self.op_id = json.op_id;
     self.isAlgo = json.isAlgo;
 
     self._progress = json._progress;

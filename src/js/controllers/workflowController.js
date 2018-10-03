@@ -282,8 +282,8 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
         description: null
       };
 
-      // Add the entry point referenced by op_id=1
-      self.toAddToWorkflow = catalog.libraryFindOp(1, false);
+      // Add the entry point "Dataset Selection"
+      self.toAddToWorkflow = catalog.libraryFindOp("dataset_selection", false);
 
       // Reset focused node
       self.focusedNode = null;
@@ -344,7 +344,6 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
         idToProvide = self.current.id;
       }
 
-      console.debug("DEBUG ID :", idToProvide);
       ikats.api.wf.save({
         async: true,
         name: self.current.name,
@@ -690,7 +689,7 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
         // self case happen after clearing the toAddToWorkflow variable.
         return;
       }
-      if (!thing.op_id) { // If the thing to append is a custom OP or a Macro
+      if (thing.macroOp) { // If the thing to append is a Macro Operator
         // Append the macro
         self.appendMacro(thing.id);
         // Cleans the variable toAddToWorkflow
