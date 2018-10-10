@@ -1,4 +1,3 @@
-//Review#826 this file has finally not been modified => should not appear in git history
 /**
  * Copyright 2018 CS Systèmes d'Information
  *
