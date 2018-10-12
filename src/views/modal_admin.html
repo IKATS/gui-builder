@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <div ng-if="wfCtrl.admin.visiblePanel==='table'">
-                    <h1>Delete a Table <span class="badge">{{wfCtrl.admin.table.data.length}}</span></h1>
+                    <h1>Manage Tables <span class="badge">{{wfCtrl.admin.table.data.length}}</span></h1>
                     <div class="alert-danger"><strong>DANGER ZONE</strong> No confirmation is required for the actions
                         below
                     </div>
@@ -138,6 +138,13 @@
                                                 title="Delete table">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </button>
+                                        <a href="{{wfCtrl.ikats.constants.URL_TDM}}/table/export/{{item.name}}">
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary"
+                                                title="Export table">
+                                            <span class="glyphicon glyphicon-save"></span>
+                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                             </table>
