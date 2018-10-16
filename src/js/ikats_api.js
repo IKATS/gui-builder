@@ -121,6 +121,11 @@ const ikats = {
 /**
  * IKATS global constants
  **********************************************************************************************************************/
+
+// IKATS version
+ikats.constants.version = "No version";
+$(".footer").append("<span>" + ikats.constants.version + "</span>");
+
 // Root address of the common IKATS API to connect to
 ikats.constants.tomee_addr = "127.0.0.1:8081";
 ikats.constants.gunicorn_addr = "127.0.0.1:8000";
@@ -136,7 +141,6 @@ ikats.constants.URL_Algo = "http://" + ikats.constants.gunicorn_addr + "/ikats/a
 ikats.constants.simulate_family = false;
 ikats.constants.simulate_smartconnectors = true;
 ikats.constants.simulate_implementations = false;
-ikats.constants.simulate_implementation = false;
 ikats.constants.simulate_algorithms = false;
 
 
@@ -2741,7 +2745,7 @@ ikats.api.op.read = function(p_args) {
 
   // Default parameters
   let p = new ikats.common.default_params();
-  p.name = null; // Name of the operator (algorithm) (mandatory)
+  p.name = null; // Name of the operator (mandatory)
 
   // Simple mode, if number is entered instead of complex object,
   // assume this is the operator id to use
@@ -2765,54 +2769,10 @@ ikats.api.op.read = function(p_args) {
     return result;
   }
 
-  // Handling Result Simulation while waiting for real call
-  if (ikats.constants.simulate_implementation) {
-
-    const implementation = {
-      id: 0,
-      name: "Name of implementation",
-      description: "Description of implem",
-      label: "Implem label",
-      family: "Family",
-      algo: "Algo",
-      inputs: [{
-        name: "ts_selection",
-        label: "TSin",
-        description: "list of TS",
-        type: "ts_list"
-      }],
-      parameters: [{
-          label: "cut count",
-          name: "cut_nb",
-          description: "number of chunk",
-          type: "number",
-          domain: undefined
-        }
-
-      ],
-      outputs: [{
-        label: "TSout",
-        name: "ts_result",
-        description: "List of computed TS",
-        type: "ts_list"
-      }]
-    };
-
-    result.status = true;
-    result.status_msg = "OK";
-    result.debug = "Simulated Call";
-    result.data = cloneObj(implementation);
-
-    // Trigger the callback if defined
-    ikats.common.callback(p.success, result);
-    return ikats.common.async_results_builder(result, p.async);
-  }
-
   // Fire request
   const promise = $.ajax({
     type: "GET",
-    url: ikats.constants.URL_Algo + "/catalogue/implementations/" + p.name +
-      "/",
+    url: ikats.constants.URL_Algo + "/catalogue/implementations/" + p.name,
     async: p.async,
     contentType: "application/json",
 
@@ -2983,7 +2943,7 @@ ikats.api.op.status = function(p_args) {
  * Run the computation of any operator (algorithm)
  *
  *   @param {ikats.common.default_params} p_args (see ikats.common.default_params for common parameters)
- *       * op_id: Id of the operator (algorithm) (mandatory)
+ *       * name: name of the operator (mandatory)
  *       * args: arguments to send to the operator without preparation
  *       * async_run: detach algorithm execution if true, returns at the end of execution otherwise
  *
@@ -3009,7 +2969,7 @@ ikats.api.op.run = function(p_args) {
 
   // Default parameters
   let p = new ikats.common.default_params();
-  p.op_id = null; // Id of the operator (algorithm) (mandatory)
+  p.name = null; // Name of the operator (mandatory)
   p.async_run = true; // Detach execution (do not wait for result)
   p.args = {}; // Arguments to provide
 
@@ -3017,8 +2977,8 @@ ikats.api.op.run = function(p_args) {
   p = ikats.common.merge_params(p_args, p);
 
   // Check missing mandatory parameters
-  if (p.op_id === null) {
-    console.error("op_id must be filled");
+  if (p.name === null) {
+    console.error("name must be filled");
     // Trigger the callback if defined
     ikats.common.callback(p.error, result);
     return result;
@@ -3027,14 +2987,14 @@ ikats.api.op.run = function(p_args) {
     return result;
   }
 
-  // Object to send to the algorithm (filled by inputs and parameters provided at call)
+  // Object to send to the operator (filled by inputs and parameters provided at call)
   const arguments_to_send = p.args;
 
   // Final data to send (encapsulate functional data with execution information)
   const data = {
     opts: {
       async: p.async_run,
-      custo_algo: false, // Not a customized algorithm
+      custo_algo: false, // Not a customized operator
       debug: false // No debug information at return
     },
     args: arguments_to_send // Functional arguments to send
@@ -3058,7 +3018,7 @@ ikats.api.op.run = function(p_args) {
    */
   const promise = $.ajax({
     type: "POST",
-    url: ikats.constants.URL_Algo + "/execute/runalgo/" + p.op_id,
+    url: ikats.constants.URL_Algo + "/execute/runalgo/" + p.name,
     data: JSON.stringify(data),
     async: p.async,
     contentType: "application/json",
@@ -3160,7 +3120,6 @@ ikats.api.op.results = function(p_args) {
     data: p.data,
     async: p.async,
 
-
     /**
      * Algorithm run instance results
      *
@@ -3258,16 +3217,6 @@ ikats.api.op.result = function(p_args) {
     return result;
   }
 
-  /** MOCK CODE **/
-  if (p.rid === "id_mock_pdata1") {
-    result.data = [{
-      "funcId": "PORTFOLIO_EWH",
-      "tsuid": "650DF9000001000001000002000002000003000005"
-    }];
-    ikats.common.callback(p.success, result);
-    return result;
-  }
-  /** END OF MOCK **/
   // Fire request
   const promise = $.ajax({
     type: "GET",
@@ -3275,7 +3224,6 @@ ikats.api.op.result = function(p_args) {
       "/processdata/id/download/" + p.rid,
     async: p.async,
     contentType: "application/json",
-
 
     /**
      * @callback ikats_api_op_result_callback

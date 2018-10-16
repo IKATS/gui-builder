@@ -107,18 +107,18 @@ angular.module("ikatsapp.controllers").controller("CatalogController", ["toastr"
     };
 
     /**
-     * Find Operator by its Id
+     * Find Operator by its name (which is unique)
      *
      * @alias libraryFindOp
      * @memberOf IKATS_GUI.Controllers.CatalogController
      *
-     * @param {number} op_id Operator identifier (unique duet:[op_id,isAlgo])
+     * @param {string} name Operator identifier (unique name)
      * @param {boolean} isAlgo determines if the operator is an algo or a core operator
      * @param {Object=} from_cat entry point (sub category) to search into
      *
      * @return {?OP_INFO} Operator
      */
-    self.libraryFindOp = function (op_id, isAlgo, from_cat) {
+    self.libraryFindOp = function (name, isAlgo, from_cat) {
         if (from_cat === undefined) {
             from_cat = self.library;
         }
@@ -128,13 +128,13 @@ angular.module("ikatsapp.controllers").controller("CatalogController", ["toastr"
 
         for (let i = 0; i < from_cat.length; i++) {
             if (from_cat[i].category) {
-                const r = self.libraryFindOp(op_id, isAlgo, from_cat[i]);
+                const r = self.libraryFindOp(name, isAlgo, from_cat[i]);
                 if (r !== null) {
                     return r;
                 }
             }
             else {
-                if ((from_cat[i].op_id === op_id) && (from_cat[i].isAlgo === isAlgo)) {
+                if ((from_cat[i].name === name) && (from_cat[i].isAlgo === isAlgo)) {
                     return from_cat[i];
                 }
             }
@@ -219,7 +219,7 @@ angular.module("ikatsapp.controllers").controller("CatalogController", ["toastr"
      *
      * @param {Object} cat Category to append the operator to
      * @param {OP_INFO} op Object defining the minimum information to locate and display operator:
-     *       - id: operator id
+     *       - id: operator identifier
      *       - isAlgo: boolean indicating the origin of the entry
      *       - title: First title to display
      *       - subtitle: Second title to display
@@ -261,7 +261,7 @@ angular.module("ikatsapp.controllers").controller("CatalogController", ["toastr"
             BuildCoreOperatorsList();
             CORE_OPERATORS_LIB.forEach(function (raw_op) {
                 // Limit each item to the minimum to display to catalog
-                const op = new OP_INFO(null, raw_op.op_id, false);
+                const op = new OP_INFO(null, raw_op.name, false);
                 op.label = raw_op.label;
                 op.algo = "Core operator";
                 op.desc = raw_op.desc;
@@ -274,8 +274,7 @@ angular.module("ikatsapp.controllers").controller("CatalogController", ["toastr"
             const implementations = ikats.api.op.list().data;
             implementations.forEach(function (raw_op) {
                 if (raw_op.visibility === true) {
-                    const op = new OP_INFO(null, raw_op.id, true);
-                    op.name = raw_op.name;
+                    const op = new OP_INFO(null, raw_op.name, true);
                     op.label = raw_op.label;
                     op.algo = raw_op.algo;
                     op.desc = raw_op.description;

@@ -29,8 +29,9 @@ gulp build
 
 # Update API endpoints
 gulp \
-    --tomee=${TOMEE_ADDR} \
-    --tomcat=${TOMCAT_ADDR} \
-    --gunicorn=${GUNICORN_ADDR} \
-    --opentsdb=${OPENTSDB_ADDR} \
+    --version="${IKATS_VERSION}" \
+    --tomee="${HOST}/${TOMEE_ADDR}" \
+    --tomcat="${HOST}/${TOMCAT_ADDR}" \
+    --gunicorn="${HOST}/${GUNICORN_ADDR}" \
+    --opentsdb="${HOST}/${OPENTSDB_ADDR}" \
 set-api-endpoints
