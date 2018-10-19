@@ -329,7 +329,6 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
                 scale: self.scale
             };
 
-
             if (self.chartViewModel.data.nodes) {
                 for (let i = 0; i < self.chartViewModel.data.nodes.length; i++) {
                     const node = self.chartViewModel.data.nodes[i];
@@ -354,8 +353,14 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
                 data: data,
                 id: idToProvide,
                 success: function (data) {
-                    toastr.success("Workflow " + self.current.name +
-                        " successfully saved");
+                    if (update) {
+                        toastr.success("Workflow " + self.current.name +
+                            " successfully updated");
+                    }
+                    else {
+                        toastr.success("Workflow " + self.current.name +
+                            " successfully saved");
+                    }
 
                     console.debug("data : ", data);
                     if (data.data !== null) {
@@ -366,9 +371,17 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
                     self.list();
 
                 },
-                error: function () {
-                    toastr.error("Error occurred while saving workflow " +
-                        self.current.name);
+                error: function (e) {
+                    if (update) {
+                        notify().error("Error occurred while updating workflow " +
+                            self.current.name + " : " + e.xhr.responseText);
+                        console.error(e);
+                    }
+                    else {
+                        notify().error("Error occurred while saving workflow " +
+                            self.current.name + " : " + e.xhr.responseText);
+                        console.error(e);
+                    }
                 }
             });
         };
