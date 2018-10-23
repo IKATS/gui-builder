@@ -91,11 +91,16 @@
                                     ng-click="wfCtrl.list()">
                                      <span class="glyphicon glyphicon-folder-open"></span> Open</a>
                               </li>
+                              <li ng-if="wfCtrl.current.name">
+                                 <a href="#"
+                                    ng-click="wfCtrl.save()" >
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Save</a>
+                              </li>
                               <li>
                                  <a href="#"
                                     data-toggle="modal"
-                                    data-target="#wfSaveModal">
-                                     <span class="glyphicon glyphicon-floppy-disk"></span> Save</a>
+                                    data-target="#wfSaveAsModal">
+                                     <span class="glyphicon glyphicon-floppy-disk"></span> Save As</a>
                               </li>
                            </ul>
                         </li>
@@ -133,8 +138,8 @@
     <!-- Content (everything under navbar and upper footer) goes here -->
         <div class="container-fluid" ng-controller="MacroOpController as moCtrl">
 
-            <!-- wfSaveModal -->
-            <div ng-include="'views/modal_workflow_save.html'"></div>
+            <!-- wfSaveAsModal -->
+            <div ng-include="'views/modal_workflow_save_as.html'"></div>
 
             <!-- wfDelModal -->
             <div ng-include="'views/modal_workflow_delete.html'"></div>

@@ -316,12 +316,29 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
          * @memberOf IKATS_GUI.Controllers.WorkflowController
          * @param {boolean} update define if saving is over an existing workflow (true : delete old reference, false : don't)
          */
-        self.save = function (update) {
+        self.save = function (new_name, new_description) {
 
-            if (self.current.name === null || self.current.name === "") {
+            if (new_name === "") {
+                new_name = null;
+            }
+            if (self.current.name === "") {
+                self.current.name = null;
+            }
+            if (new_description === "") {
+                new_description =null;
+            }
+
+            if (self.current.name === null && new_name === null ) {
                 toastr.error("Provide a name for the workflow");
                 return;
             }
+            if (new_name === null) {
+                new_name = self.current.name;
+            }
+            if (new_description === null) {
+                new_description = self.current.description;
+            }
+
             let data = {
                 nodes: [],
                 connections: [],
@@ -342,22 +359,27 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
 
             // Handle Update mode
             let idToProvide = null;
-            if (update) {
+            let update = false;
+            if (new_name === self.current.name) {
                 idToProvide = self.current.id;
+                update=true;
             }
 
             ikats.api.wf.save({
                 async: true,
-                name: self.current.name,
-                description: self.current.description,
+                name: new_name,
+                description: new_description,
                 data: data,
                 id: idToProvide,
                 success: function (data) {
                     if (update) {
+                        self.current.description = new_description;
                         toastr.success("Workflow " + self.current.name +
                             " successfully updated");
                     }
                     else {
+                        self.current.name = new_name;
+                        self.current.description = new_description;
                         toastr.success("Workflow " + self.current.name +
                             " successfully saved");
                     }
@@ -379,7 +401,7 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
                     }
                     else {
                         notify().error("Error occurred while saving workflow " +
-                            self.current.name + " : " + e.xhr.responseText);
+                            new_name + " : " + e.xhr.responseText);
                         console.error(e);
                     }
                 }
