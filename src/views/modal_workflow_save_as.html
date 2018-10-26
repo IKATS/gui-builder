@@ -14,8 +14,7 @@
   limitations under the License.
 -->
 <!-- wfSaveAsModal -->
-<div class="modal fade" id="wfSaveAsModal" tabindex="-1" role="dialog" aria-labelledby="wfSaveAsModalTitle"
-     ng-init="new_name=wfCtrl.current.name;new_description=wfCtrl.current.description;">
+<div class="modal fade" id="wfSaveAsModal" tabindex="-1" role="dialog" aria-labelledby="wfSaveAsModalTitle">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -25,10 +24,10 @@
             </div>
             <div class="modal-body ">
                 <div class="parameterName">Workflow name</div>
-                <input type="text" class="form-control" placeholder="name" ng-model="new_name" va>
+                <input type="text" class="form-control" placeholder="name" ng-model="wfCtrl.current.new_name">
                 <br/>
                 <div class="parameterName">Workflow description</div>
-                <input type="text" class="form-control" placeholder="description" ng-model="new_description">
+                <input type="text" class="form-control" placeholder="description" ng-model="wfCtrl.current.new_description">
 
             </div>
             <div class="modal-footer">
@@ -36,8 +35,8 @@
                 <button type="button"
                         class="btn btn-primary"
                         data-dismiss="modal"
-                        ng-click="wfCtrl.save(new_name,new_description)"
-                        ng-class="{disabled:!new_name}">
+                        ng-click="wfCtrl.save(wfCtrl.current.new_name,wfCtrl.current.new_description)"
+                        ng-class="{disabled:!wfCtrl.current.new_name}">
                     <span class="glyphicon glyphicon-plus"></span> Save as
                 </button>
             </div>
