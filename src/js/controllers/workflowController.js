@@ -230,7 +230,9 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
         self.current = {
             id: null,
             name: null,
-            description: null
+            new_name: null,
+            description: null,
+            new_description: null
         };
 
         /**
@@ -282,7 +284,9 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
             self.current = {
                 id: null,
                 name: null,
-                description: null
+                new_name: null,
+                description: null,
+                new_description: null
             };
 
             // Add the entry point "Dataset Selection"
@@ -314,21 +318,25 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
          *
          * @alias save
          * @memberOf IKATS_GUI.Controllers.WorkflowController
-         * @param {boolean} update define if saving is over an existing workflow (true : delete old reference, false : don't)
+         * @param {String} new_name new name provided for saving workflow as a new one (workflow name is unique)
+         * @param {String} new_description new description for updating existing workflow
          */
-        self.save = function (update) {
+        self.save = function (new_name, new_description) {
 
-            if (self.current.name === null || self.current.name === "") {
+            if ((new_name === "") || (new_name === undefined) || (new_name === null)) {
+                new_name = self.current.name;
+            }
+            if (((self.current.name === null) || (self.current.name === "")) && new_name === null ) {
                 toastr.error("Provide a name for the workflow");
                 return;
             }
+
             let data = {
                 nodes: [],
                 connections: [],
                 translate: self.translate,
                 scale: self.scale
             };
-
 
             if (self.chartViewModel.data.nodes) {
                 for (let i = 0; i < self.chartViewModel.data.nodes.length; i++) {
@@ -343,19 +351,30 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
 
             // Handle Update mode
             let idToProvide = null;
-            if (update) {
+            let update = false;
+            if (new_name === self.current.name) {
                 idToProvide = self.current.id;
+                update=true;
             }
 
             ikats.api.wf.save({
                 async: true,
-                name: self.current.name,
-                description: self.current.description,
+                name: new_name,
+                description: new_description,
                 data: data,
                 id: idToProvide,
                 success: function (data) {
-                    toastr.success("Workflow " + self.current.name +
-                        " successfully saved");
+                    if (update) {
+                        self.current.description = new_description;
+                        toastr.success("Workflow " + self.current.name +
+                            " successfully updated");
+                    }
+                    else {
+                        self.current.name = new_name;
+                        self.current.description = new_description;
+                        toastr.success("Workflow " + self.current.name +
+                            " successfully saved");
+                    }
 
                     console.debug("data : ", data);
                     if (data.data !== null) {
@@ -366,9 +385,18 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
                     self.list();
 
                 },
-                error: function () {
-                    toastr.error("Error occurred while saving workflow " +
-                        self.current.name);
+                error: function (e) {
+                    self.current.new_name = self.current.name;
+                    self.current.new_description = self.current.description;
+                    if (update) {
+                        notify().error("Error occurred while updating workflow " +
+                            self.current.name + " : " + e.xhr.responseText);
+                    }
+                    else {
+                        notify().error("Error occurred while saving workflow " +
+                            new_name + " : " + e.xhr.responseText);
+                    }
+                    console.error(e);
                 }
             });
         };
@@ -462,7 +490,9 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
                     self.current = {
                         id: result.data.id,
                         name: result.data.name,
-                        description: result.data.description
+                        new_name: result.data.name,
+                        description: result.data.description,
+                        new_description: result.data.description
                     };
 
                     //Clear the current workflow
