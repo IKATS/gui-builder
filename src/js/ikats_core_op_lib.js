@@ -1198,20 +1198,6 @@ let _core_op_lib = [
         family: "Dataset Preparation/Import Export",
         parameters: [
             {
-                name: "dataset",
-                label: "Dataset name",
-                description: "The name of the created dataset",
-                type: "text",
-                default_value: null,
-            },
-            {
-                name: "description",
-                label: "Description",
-                description: "A description of this dataset",
-                type: "text",
-                default_value: null,
-            },
-            {
                 name: "rootPath",
                 label: "Root Path",
                 description: "The root path of the data files on server side",
@@ -1229,6 +1215,20 @@ let _core_op_lib = [
                 name: "funcIdPattern",
                 label: "FID name rule",
                 description: "Pattern used to define name of each TS (ex: test_PORTFOLIO_${metric})",
+                type: "text",
+                default_value: null,
+            }, 
+            {
+                name: "dataset",
+                label: "Dataset name",
+                description: "The name of the created dataset",
+                type: "text",
+                default_value: null,
+            }, 
+            {
+                name: "description",
+                label: "Description",
+                description: "A description of this dataset",
                 type: "text",
                 default_value: null,
             }
