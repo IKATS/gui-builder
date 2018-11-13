@@ -13,21 +13,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- wfSaveModal -->
-<div class="modal fade" id="wfSaveModal" tabindex="-1" role="dialog" aria-labelledby="wfSaveModalTitle">
+<!-- wfSaveAsModal -->
+<div class="modal fade" id="wfSaveAsModal" tabindex="-1" role="dialog" aria-labelledby="wfSaveAsModalTitle">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="wfSaveModalTitle">Save workflow</h4>
+                <h4 class="modal-title" id="wfSaveAsModalTitle">Save workflow</h4>
             </div>
             <div class="modal-body ">
                 <div class="parameterName">Workflow name</div>
-                <input type="text" class="form-control" placeholder="name" ng-model="wfCtrl.current.name">
+                <input type="text" class="form-control" placeholder="name" ng-model="wfCtrl.current.new_name">
                 <br/>
                 <div class="parameterName">Workflow description</div>
-                <input type="text" class="form-control" placeholder="description" ng-model="wfCtrl.current.description">
+                <input type="text" class="form-control" placeholder="description" ng-model="wfCtrl.current.new_description">
 
             </div>
             <div class="modal-footer">
@@ -35,15 +35,8 @@
                 <button type="button"
                         class="btn btn-primary"
                         data-dismiss="modal"
-                        ng-click="wfCtrl.save(true)"
-                        ng-show="wfCtrl.current.id">
-                    <span class="glyphicon glyphicon-floppy-disk"></span> Update
-                </button>
-                <button type="button"
-                        class="btn btn-primary"
-                        data-dismiss="modal"
-                        ng-click="wfCtrl.save()"
-                        ng-class="{disabled:!wfCtrl.current.name}">
+                        ng-click="wfCtrl.save(wfCtrl.current.new_name,wfCtrl.current.new_description)"
+                        ng-class="{disabled:!wfCtrl.current.new_name}">
                     <span class="glyphicon glyphicon-plus"></span> Save as
                 </button>
             </div>
