@@ -110,8 +110,7 @@ def fetch_repo(repository_info):
     if url[0] == "/":
         # Repository is a local path
         try:
-            shutil.rmtree("%s/%s" % (FETCH_VT_PATH, vt_name),
-                          ignore_errors=True)
+            shutil.rmtree("%s/vt-%s" % (FETCH_VT_PATH, vt_name), ignore_errors=True)
             shutil.copytree(url, "%s/vt-%s" % (FETCH_VT_PATH, vt_name))
             commit_ref = "local_changes"
         except Exception as e:
