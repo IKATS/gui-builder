@@ -202,7 +202,20 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
         self.visibleParams = false;
 
         self.toggleVisibleParams = function () {
-            self.visibleParams = self.visibleParams ? false : true;
+            self.visibleParams = !self.visibleParams;
+            // handling viztool space
+            if (self.visibleParams) {
+                document.getElementById("viz").classList
+                    .remove("col-xs-12");
+                document.getElementById("viz").classList
+                    .add("col-xs-9");
+            } else {
+                document.getElementById("viz").classList
+                    .remove("col-xs-9");
+                document.getElementById("viz").classList
+                    .add("col-xs-12");
+            }
+
         };
 
         /**
