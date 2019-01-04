@@ -480,7 +480,7 @@ let _core_op_lib = [
                                     self.getOutput("ds").value = param_name;
                                     const info = "Dataset " + param_name + " created";
                                     console.info(info);
-                                    notify().info(info)
+                                    notify().info(info);
                                 },
                                 error: function (r) {
                                     self.progress(100, OP_STATES.ko);

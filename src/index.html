@@ -132,6 +132,9 @@
                                 class="glyphicon glyphicon-question-sign"></span> Help</a></li>
                         <li class="divider"></li>
                     </ul>
+                    <button class="btn-primary btn-primary pull-right" ng-click = wfCtrl.toggleVisibleParams()>
+                        toggle parameter pannel
+                    </button>
                 </div>
             </div>
         </div>
@@ -416,7 +419,7 @@
                              right: 0px;">
                         </div>
                     </div>
-                    <div class="col-xs-3 scrollable" ng-show="wfCtrl.focusedNode"
+                    <div class="col-xs-3 scrollable" ng-show="wfCtrl.visibleParams"
                          style="background-color: rgba(232, 232, 232, 0.90);min-width:332px;box-shadow: -3px -1px 5px 0px rgba(0, 0, 0, 0.3);">
 
                         {{wfCtrl.toAddToWorkflow}}

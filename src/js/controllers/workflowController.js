@@ -187,11 +187,22 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
             //remove focus of the eventual input when clicking the workflow
             document.activeElement.blur();
             self.focusedNode = self.chartViewModel.getSelectedNodes()[0];
-
+            // display the parameter panel if a node is selectd
+            if (self.focusedNode) {
+                self.visibleParams = true;
+            } else {
+                self.visibleParams = false;
+            }
             //if there is more than one node selected we assume that no one is focused.
             if (self.chartViewModel.getSelectedNodes()[1]) {
                 self.focusedNode = null;
             }
+        };
+
+        self.visibleParams = false;
+
+        self.toggleVisibleParams = function () {
+            self.visibleParams = self.visibleParams ? false : true;
         };
 
         /**
