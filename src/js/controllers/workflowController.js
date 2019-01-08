@@ -184,10 +184,10 @@ angular.module("ikatsapp.controllers").controller("WorkflowController", [
          * @memberOf IKATS_GUI.Controllers.WorkflowController
          */
         self.checkSelected = function () {
-            //remove focus of the eventual input when clicking the workflow
+            // Remove focus of the eventual input when clicking the workflow
             document.activeElement.blur();
             self.focusedNode = self.chartViewModel.getSelectedNodes()[0];
-            //if there is more than one node selected we assume that no one is focused.
+            // If there is more than one node selected we assume that no one is focused.
             if (self.chartViewModel.getSelectedNodes()[1]) {
                 self.focusedNode = null;
             }
