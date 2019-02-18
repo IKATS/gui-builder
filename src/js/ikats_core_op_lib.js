@@ -894,8 +894,8 @@ let _core_op_lib = [{
             name: "name",
             label: "Name",
             description: "Table name: unique identifier",
-            type: "text",
-            default_value: null,
+            type: "list",
+            dov: ikats.api.table.list().data.map(index => {return index.title;}),
         }],
         outputs: [{
             name: "table",
