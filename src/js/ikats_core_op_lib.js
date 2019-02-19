@@ -903,12 +903,11 @@ let _core_op_lib = [{
             type: "table"
         }],
         init: function () {
-
             const self = this;
-            self.progress(100, OP_STATES.idle);
             // reloading the list of existing tables at the generation of the operator
-            const param_read_table = this.getParameter("Criteria");
+            const param_read_table = self.getParameter("name");
             param_read_table.dov = ikats.api.table.list().data.map(index => {return index.title;}).sort();
+            self.progress(100, OP_STATES.idle);
         },
         run: function () {
             const self = this;
