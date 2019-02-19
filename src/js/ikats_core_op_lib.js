@@ -894,8 +894,8 @@ let _core_op_lib = [{
             name: "name",
             label: "Name",
             description: "Table name: unique identifier",
-            type: "text",
-            default_value: null,
+            type: "list",
+            dov: [],
         }],
         outputs: [{
             name: "table",
@@ -903,10 +903,13 @@ let _core_op_lib = [{
             type: "table"
         }],
         init: function () {
-
             const self = this;
+            // By convention, loading an operator is indicated by a 50% idle progress status
+            self.progress(50, OP_STATES.idle);
+            // Reloading the list of existing tables at the generation of the operator
+            const param_read_table = self.getParameter("name");
+            param_read_table.dov = ikats.api.table.list().data.map(index => index.name).sort();
             self.progress(100, OP_STATES.idle);
-
         },
         run: function () {
             const self = this;
