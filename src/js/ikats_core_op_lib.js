@@ -895,9 +895,7 @@ let _core_op_lib = [{
             label: "Name",
             description: "Table name: unique identifier",
             type: "list",
-            // Review#1326 : This is done only at loading time, if table is created in current session, the new item won't be present
-            // Review#1326 : not sorted (read story)
-            dov: ikats.api.table.list().data.map(index => {return index.title;}),
+            dov: [],
         }],
         outputs: [{
             name: "table",
@@ -908,7 +906,9 @@ let _core_op_lib = [{
 
             const self = this;
             self.progress(100, OP_STATES.idle);
-
+            // reloading the list of existing tables at the generation of the operator
+            const param_read_table = this.getParameter("Criteria");
+            param_read_table.dov = ikats.api.table.list().data.map(index => {return index.title;}).sort();
         },
         run: function () {
             const self = this;
