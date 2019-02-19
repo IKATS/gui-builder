@@ -895,6 +895,8 @@ let _core_op_lib = [{
             label: "Name",
             description: "Table name: unique identifier",
             type: "list",
+            // Review#1326 : This is done only at loading time, if table is created in current session, the new item won't be present
+            // Review#1326 : not sorted (read story)
             dov: ikats.api.table.list().data.map(index => {return index.title;}),
         }],
         outputs: [{
