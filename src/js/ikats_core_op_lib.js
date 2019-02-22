@@ -75,26 +75,22 @@ function BuildCoreOperatorsList() {
  * @type {Array}
  * @private
  */
-let _core_op_lib = [
-    {
+let _core_op_lib = [{
         name: "dataset_selection",
         label: "Dataset Selection",
         description: "Get a TS list from a dataset name",
         family: "Dataset Preparation/Dataset Management",
-        parameters: [
-            {
-                name: "Source",
-                label: "Source",
-                description: "Select the source dataset for your Workflow",
-                type: "ds_list",
-                default_value: null,
-                onEvent: function (node) {
-                    node.run();
-                }
+        parameters: [{
+            name: "Source",
+            label: "Source",
+            description: "Select the source dataset for your Workflow",
+            type: "ds_list",
+            default_value: null,
+            onEvent: function (node) {
+                node.run();
             }
-        ],
-        outputs: [
-            {
+        }],
+        outputs: [{
                 name: "ts_list",
                 label: "TS list",
                 type: "ts_list"
@@ -136,8 +132,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 ikats.api.ds.read({
                     ds_name: param.value.name,
                     async: true,
@@ -159,28 +154,23 @@ let _core_op_lib = [
         label: "Filter",
         description: "Filter TS using metadata",
         family: "Dataset Preparation/Dataset Management",
-        inputs: [
-            {
-                name: "TS",
-                label: "TS list",
-                type: "ts_list"
+        inputs: [{
+            name: "TS",
+            label: "TS list",
+            type: "ts_list"
+        }],
+        parameters: [{
+            name: "Criteria",
+            label: "Criteria",
+            type: "md_filter",
+            description: "Filter the input data according to meta-data",
+            default_value: [{}],
+            dov: null,
+            onEvent: function (node) {
+                node.run();
             }
-        ],
-        parameters: [
-            {
-                name: "Criteria",
-                label: "Criteria",
-                type: "md_filter",
-                description: "Filter the input data according to meta-data",
-                default_value: [{}],
-                dov: null,
-                onEvent: function (node) {
-                    node.run();
-                }
-            }
-        ],
-        outputs: [
-            {
+        }],
+        outputs: [{
                 name: "TS",
                 label: "TS list",
                 type: "ts_list",
@@ -220,8 +210,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
 
                 let dsName = "";
                 if (typeof (in_ts_list) === "string") {
@@ -231,18 +220,30 @@ let _core_op_lib = [
 
                 const criteria_to_send = JSON.parse(angular.toJson(param_criteria.value));
 
+                // Check consistency
+                for (let i = 0; i < criteria_to_send.length; i++) {
+                    if ((!criteria_to_send[i].hasOwnProperty("comparator")) ||
+                        (!criteria_to_send[i].hasOwnProperty("meta_name")) ||
+                        (!criteria_to_send[i].hasOwnProperty("value"))) {
+
+                        self.progress(100, OP_STATES.ko);
+                        const error = "Error occurred : Filter malformed";
+                        console.error(error);
+                        notify().error(error);
+                        return;
+                    }
+                }
+
                 // Convert date into timestamp EPOCH milliseconds
                 criteria_to_send.map(function (x) {
                     if ((param_criteria.dov[x.meta_name] === "date") && (x.comparator.indexOf("like") === -1)) {
                         if (/^\d+$/.test(x.value)) {
                             // Timestamp provided
                             x.value = parseInt(x.value, 10);
-                        }
-                        else {
+                        } else {
                             try {
                                 x.value = Date.parse(x.value);
-                            }
-                            catch (e) {
+                            } catch (e) {
                                 console.error("Error while parsing the value of " + x.meta_name);
                             }
                         }
@@ -264,14 +265,13 @@ let _core_op_lib = [
                         let precision = 3;
 
                         out_ratio.value = parseInt(
-                            Math.pow(10, precision) *
-                            out_ts_list.value.length / in_ts_list.length, 10) *
+                                Math.pow(10, precision) *
+                                out_ts_list.value.length / in_ts_list.length, 10) *
                             Math.pow(10, -precision);
                         if (dsName === "") {
                             notify().info(out_ts_list.value.length + " TS filtered");
                             console.info(out_ts_list.value.length + " TS filtered out of " + in_ts_list.length + " (" + out_ratio.value + "%)");
-                        }
-                        else {
+                        } else {
                             console.info(out_ts_list.value.length + " TS filtered");
                         }
 
@@ -286,8 +286,7 @@ let _core_op_lib = [
                             self.progress(100, OP_STATES.ok);
                             notify().info("No results");
                             console.error("No results");
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                             notify().error(r.status_msg);
                             console.error(r.status_msg);
@@ -302,34 +301,28 @@ let _core_op_lib = [
         label: "Manual Selection",
         description: "Manually filter a TS list",
         family: "Dataset Preparation/Dataset Management",
-        inputs: [
-            {
-                name: "TS",
-                label: "TS list",
-                type: "ts_list"
+        inputs: [{
+            name: "TS",
+            label: "TS list",
+            type: "ts_list"
+        }],
+        parameters: [{
+            name: "Selection",
+            label: "Selection",
+            type: "ts_selection",
+            description: "List of Time series",
+            default_value: null,
+            dov: null,
+            onEvent: function (node) {
+                node.run();
             }
-        ],
-        parameters: [
-            {
-                name: "Selection",
-                label: "Selection",
-                type: "ts_selection",
-                description: "List of Time series",
-                default_value: null,
-                dov: null,
-                onEvent: function (node) {
-                    node.run();
-                }
-            }
-        ],
-        outputs: [
-            {
-                name: "ts_list",
-                label: "TS list",
-                type: "ts_list",
-                value: null
-            }
-        ],
+        }],
+        outputs: [{
+            name: "ts_list",
+            label: "TS list",
+            type: "ts_list",
+            value: null
+        }],
         init: function () {
             const in_ts_list = this.getInput("TS").getValue();
             const param_list = this.getParameter("Selection");
@@ -377,8 +370,7 @@ let _core_op_lib = [
                 const error = "Error occurred : no selection";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 out_ts_list.value = param_list;
                 if (out_ts_list.value) {
                     self.progress(100, OP_STATES.ok);
@@ -393,15 +385,12 @@ let _core_op_lib = [
         label: "Save as dataset",
         description: "Save a list of TS as a new Dataset",
         family: "Dataset Preparation/Dataset Management",
-        inputs: [
-            {
-                name: "ts_list",
-                label: "TS list",
-                type: "ts_list"
-            }
-        ],
-        outputs: [
-            {
+        inputs: [{
+            name: "ts_list",
+            label: "TS list",
+            type: "ts_list"
+        }],
+        outputs: [{
                 name: "ts_list",
                 label: "TS list",
                 type: "ts_list"
@@ -412,8 +401,7 @@ let _core_op_lib = [
                 type: "ds_name"
             }
         ],
-        parameters: [
-            {
+        parameters: [{
                 name: "Name",
                 label: "Dataset Name",
                 type: "text",
@@ -450,8 +438,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 const tsuid_list = in_ts_list.map(function (x) {
                     return x.tsuid;
                 });
@@ -466,8 +453,7 @@ let _core_op_lib = [
                             const error = "Dataset " + param_name + " already exists";
                             console.error(error);
                             notify().error(error);
-                        }
-                        else {
+                        } else {
                             // dataset does not exist
                             ikats.api.ds.create({
                                 name: param_name,
@@ -480,7 +466,7 @@ let _core_op_lib = [
                                     self.getOutput("ds").value = param_name;
                                     const info = "Dataset " + param_name + " created";
                                     console.info(info);
-                                    notify().info(info)
+                                    notify().info(info);
                                 },
                                 error: function (r) {
                                     self.progress(100, OP_STATES.ko);
@@ -504,8 +490,7 @@ let _core_op_lib = [
         label: "Merge TS lists",
         description: "Merge 2 TS lists into 1",
         family: "Dataset Preparation/Dataset Management",
-        inputs: [
-            {
+        inputs: [{
                 name: "TS_1",
                 label: "TS list",
                 type: "ts_list"
@@ -516,15 +501,12 @@ let _core_op_lib = [
                 type: "ts_list"
             }
         ],
-        outputs: [
-            {
-                name: "Merged",
-                label: "TS list",
-                type: "ts_list"
-            }
-        ],
-        onConnUpdate: function () {
-        },
+        outputs: [{
+            name: "Merged",
+            label: "TS list",
+            type: "ts_list"
+        }],
+        onConnUpdate: function () {},
         run: function () {
             const self = this;
             self.progress(100, OP_STATES.run);
@@ -537,8 +519,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 // Remove duplicates
                 const dup_keys = {};
                 let tmp_list = [];
@@ -554,11 +535,13 @@ let _core_op_lib = [
                     });
                     out_ts_list.value = [];
                     for (let k in dup_keys) {
-                        out_ts_list.value.push({tsuid: k, funcId: dup_keys[k]});
+                        out_ts_list.value.push({
+                            tsuid: k,
+                            funcId: dup_keys[k]
+                        });
                     }
                     self.progress(100, OP_STATES.ok);
-                }
-                else {
+                } else {
                     out_ts_list.value = null;
                     self.progress(100, OP_STATES.ko);
                 }
@@ -571,8 +554,7 @@ let _core_op_lib = [
         label: "Population Selection",
         description: "CSV file ingestion to create a population table",
         family: "Data Modeling/Supervised Learning",
-        parameters: [
-            {
+        parameters: [{
                 name: "file",
                 label: "Select a csv file",
                 description: "Select the source csv file",
@@ -594,13 +576,11 @@ let _core_op_lib = [
                 default_value: null,
             }
         ],
-        outputs: [
-            {
-                name: "table",
-                label: "Table",
-                type: "table"
-            }
-        ],
+        outputs: [{
+            name: "table",
+            label: "Table",
+            type: "table"
+        }],
         init: function () {
 
             const self = this;
@@ -621,8 +601,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 ikats.api.table.createFromCSV({
                     file_content: atob(file.value.split(",")[1]),
                     filename: file.filename,
@@ -634,8 +613,7 @@ let _core_op_lib = [
                             out_table.rid = null;
                             out_table.value = pop_name.value;
                             self.progress(100, OP_STATES.ok);
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                             console.error(r.status_msg);
                             notify().error(r.status_msg);
@@ -655,16 +633,13 @@ let _core_op_lib = [
         label: "TS Finder",
         description: "Find a TS by its TSUID/FID pattern",
         family: "Dataset Preparation/Dataset Management",
-        outputs: [
-            {
-                name: "out",
-                label: "TS list",
-                type: "ts_list",
-                value: null
-            }
-        ],
-        parameters: [
-            {
+        outputs: [{
+            name: "out",
+            label: "TS list",
+            type: "ts_list",
+            value: null
+        }],
+        parameters: [{
                 name: "pattern",
                 label: "Pattern to find",
                 type: "text",
@@ -717,15 +692,12 @@ let _core_op_lib = [
         label: "Ts2Feature",
         description: "Transforming table to feature",
         family: "Pre-Processing On Ts/Transforming",
-        inputs: [
-            {
-                name: "table",
-                label: "Table",
-                type: "table"
-            }
-        ],
-        parameters: [
-            {
+        inputs: [{
+            name: "table",
+            label: "Table",
+            type: "table"
+        }],
+        parameters: [{
                 name: "pop_name",
                 label: "Population label",
                 description: "property used to identify rows in output table (table key)",
@@ -747,13 +719,11 @@ let _core_op_lib = [
                 default_value: null,
             }
         ],
-        outputs: [
-            {
-                name: "table",
-                label: "Table",
-                type: "table"
-            }
-        ],
+        outputs: [{
+            name: "table",
+            label: "Table",
+            type: "table"
+        }],
         init: function () {
 
             const self = this;
@@ -775,8 +745,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 ikats.api.table.ts2feature({
                     tableName: tableName,
                     meta_name: aggregated_by.value,
@@ -788,8 +757,7 @@ let _core_op_lib = [
                             out_table.rid = null;
                             out_table.value = r.data;
                             self.progress(100, OP_STATES.ok);
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                             console.error(r.status_msg);
                             notify().error(r.status_msg);
@@ -809,8 +777,7 @@ let _core_op_lib = [
         label: "AddTsColumn",
         description: "Join a table with metrics values",
         family: "Processing On Tables",
-        inputs: [
-            {
+        inputs: [{
                 name: "table",
                 label: "Table",
                 type: "table"
@@ -821,8 +788,7 @@ let _core_op_lib = [
                 type: "ds_name"
             }
         ],
-        parameters: [
-            {
+        parameters: [{
                 name: "metrics",
                 label: "Metrics",
                 description: "list of selected metrics (separated by semicolons)",
@@ -858,13 +824,11 @@ let _core_op_lib = [
                 default_value: null,
             }
         ],
-        outputs: [
-            {
-                name: "table",
-                label: "Table",
-                type: "table"
-            }
-        ],
+        outputs: [{
+            name: "table",
+            label: "Table",
+            type: "table"
+        }],
         init: function () {
 
             const self = this;
@@ -890,8 +854,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 ikats.api.table.joinMetrics({
                     tableName: tableName,
                     metrics: metrics.value,
@@ -906,8 +869,7 @@ let _core_op_lib = [
                             outTable.rid = null;
                             outTable.value = r.data;
                             self.progress(100, OP_STATES.ok);
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                             console.error(r.status_msg);
                             notify().error(r.status_msg);
@@ -928,27 +890,26 @@ let _core_op_lib = [
         description: "Read a table from its identifier",
         family: "Processing On Tables",
         inputs: [],
-        parameters: [
-            {
-                name: "name",
-                label: "Name",
-                description: "Table name: unique identifier",
-                type: "text",
-                default_value: null,
-            }
-        ],
-        outputs: [
-            {
-                name: "table",
-                label: "Table",
-                type: "table"
-            }
-        ],
+        parameters: [{
+            name: "name",
+            label: "Name",
+            description: "Table name: unique identifier",
+            type: "list",
+            dov: [],
+        }],
+        outputs: [{
+            name: "table",
+            label: "Table",
+            type: "table"
+        }],
         init: function () {
-
             const self = this;
+            // By convention, loading an operator is indicated by a 50% idle progress status
+            self.progress(50, OP_STATES.idle);
+            // Reloading the list of existing tables at the generation of the operator
+            const param_read_table = self.getParameter("name");
+            param_read_table.dov = ikats.api.table.list().data.map(index => index.name).sort();
             self.progress(100, OP_STATES.idle);
-
         },
         run: function () {
             const self = this;
@@ -963,8 +924,7 @@ let _core_op_lib = [
                 const error = "Error occurred : parameter name is required";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 outTable.rid = null;
                 ikats.api.table.read({
                     table_name: name.value,
@@ -973,8 +933,7 @@ let _core_op_lib = [
                         if (is2xx(r.debug.status)) {
                             outTable.value = name.value;
                             self.progress(100, OP_STATES.ok);
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                             let error = r.status_msg;
                             if (r.debug.status === 404) {
@@ -998,15 +957,12 @@ let _core_op_lib = [
         label: "TrainTestSplit",
         description: "Split table into training and testing sets",
         family: "Processing On Tables",
-        inputs: [
-            {
-                name: "table",
-                label: "Table",
-                type: "table"
-            }
-        ],
-        parameters: [
-            {
+        inputs: [{
+            name: "table",
+            label: "Table",
+            type: "table"
+        }],
+        parameters: [{
                 name: "targetColumnName",
                 label: "Column target name",
                 description: "Name of the column target in input table (not mandatory). The split is realized respecting the repartition of values in this column.",
@@ -1028,8 +984,7 @@ let _core_op_lib = [
                 default_value: null,
             }
         ],
-        outputs: [
-            {
+        outputs: [{
                 name: "trainTable",
                 label: "Train",
                 type: "table"
@@ -1063,16 +1018,14 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one mandatory parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 const repRateFloat = parseFloat(repartitionRate.value.replace(",", "."));
-                if (isNaN(repRateFloat)){
+                if (isNaN(repRateFloat)) {
                     self.progress(100, OP_STATES.ko);
                     const error = "Incorrect repartition rate";
                     console.error(error);
                     notify().error(error);
-                }
-                else {
+                } else {
                     ikats.api.table.trainTestSplit({
                         tableName: tableName,
                         targetColumnName: targetColumnName.value,
@@ -1085,8 +1038,7 @@ let _core_op_lib = [
                                 trainTable.value = TableNameList[0];
                                 testTable.value = TableNameList[1];
                                 self.progress(100, OP_STATES.ok);
-                            }
-                            else {
+                            } else {
                                 self.progress(100, OP_STATES.ko);
                                 console.error(r.status_msg);
                                 notify().error(r.status_msg);
@@ -1107,8 +1059,7 @@ let _core_op_lib = [
         label: "Merge Tables",
         description: "Merge 2 tables into one",
         family: "Processing On Tables",
-        inputs: [
-            {
+        inputs: [{
                 name: "table1",
                 label: "Table",
                 type: "table"
@@ -1119,8 +1070,7 @@ let _core_op_lib = [
                 type: "table"
             }
         ],
-        parameters: [
-            {
+        parameters: [{
                 name: "joinOn",
                 label: "Join on",
                 description: "The column name to join on. In case of empty the operator will try to join on the first column of each table",
@@ -1135,13 +1085,11 @@ let _core_op_lib = [
                 default_value: null,
             }
         ],
-        outputs: [
-            {
-                name: "outputTable",
-                label: "Table",
-                type: "table"
-            }
-        ],
+        outputs: [{
+            name: "outputTable",
+            label: "Table",
+            type: "table"
+        }],
         init: function () {
 
             const self = this;
@@ -1163,8 +1111,7 @@ let _core_op_lib = [
                 const errorMessage = "Error occurred : at least one required input or parameter is not filled";
                 console.error(errorMessage);
                 notify().error(errorMessage);
-            }
-            else {
+            } else {
                 ikats.api.table.merge({
                     table1: table1,
                     table2: table2,
@@ -1175,8 +1122,7 @@ let _core_op_lib = [
                         if (is2xx(r.debug.status)) {
                             out_table.value = r.data;
                             self.progress(100, OP_STATES.ok);
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                             console.error(r.status_msg);
                             notify().error(r.status_msg);
@@ -1196,8 +1142,7 @@ let _core_op_lib = [
         label: "Import TS",
         description: "Time series ingestion in IKATS",
         family: "Dataset Preparation/Import Export",
-        parameters: [
-            {
+        parameters: [{
                 name: "rootPath",
                 label: "Root Path",
                 description: "The root path of the data files on server side",
@@ -1217,14 +1162,14 @@ let _core_op_lib = [
                 description: "Pattern used to define name of each TS (ex: test_PORTFOLIO_${metric})",
                 type: "text",
                 default_value: null,
-            }, 
+            },
             {
                 name: "dataset",
                 label: "Dataset name",
                 description: "The name of the created dataset",
                 type: "text",
                 default_value: null,
-            }, 
+            },
             {
                 name: "description",
                 label: "Description",
@@ -1233,8 +1178,7 @@ let _core_op_lib = [
                 default_value: null,
             }
         ],
-        outputs: [
-            {
+        outputs: [{
                 name: "ts_list",
                 label: "TS list",
                 type: "ts_list"
@@ -1279,8 +1223,7 @@ let _core_op_lib = [
                 notify().error("No ingestion session attached. Stopping polling");
                 self.progress(100, OP_STATES.ko);
                 self.pollStop();
-            }
-            else {
+            } else {
 
                 ikats.api.ingest.status({
                     async: true,
@@ -1362,8 +1305,7 @@ let _core_op_lib = [
                     // Poll every 5s
                     self.checkResults(5000);
 
-                }
-                else {
+                } else {
                     self.progress(100, OP_STATES.ko);
                     console.error(r.status_msg);
                     notify().error(r.status_msg);
@@ -1375,8 +1317,7 @@ let _core_op_lib = [
                 const error = "Error occurred : at least one required input or parameter is not filled";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 // importer and serializer are hard written because user doesn't need to set it for now
                 // (only one value per field available)
                 ikats.api.ingest.start({
@@ -1451,8 +1392,7 @@ let _core_op_lib = [
         label: "Import Metadata",
         description: "CSV file import to fill metadata",
         family: "Dataset Preparation/Import Export",
-        parameters: [
-            {
+        parameters: [{
                 name: "file",
                 label: "Select a CSV file",
                 description: "Select the CSV file containing metadata",
@@ -1485,8 +1425,7 @@ let _core_op_lib = [
                 const error = "File must be provided";
                 console.error(error);
                 notify().error(error);
-            }
-            else {
+            } else {
                 ikats.api.md.importFromFile({
                     fileContent: atob(file.value.split(",")[1]),
                     updateFlag: update.value,
@@ -1497,8 +1436,7 @@ let _core_op_lib = [
                             self.progress(100, OP_STATES.ok);
                             console.info(r.data);
                             notify().info(r.data);
-                        }
-                        else {
+                        } else {
                             self.progress(100, OP_STATES.ko);
                         }
                     },
@@ -1516,15 +1454,12 @@ let _core_op_lib = [
         label: "Output Builder",
         description: "Build a custom output data",
         family: "Uncategorized",
-        outputs: [
-            {
-                name: "out",
-                label: "out",
-                type: 'ts_list'
-            }
-        ],
-        parameters: [
-            {
+        outputs: [{
+            name: "out",
+            label: "out",
+            type: 'ts_list'
+        }],
+        parameters: [{
                 name: "output_type",
                 label: "Type",
                 description: "Provide the functional type of the output",
@@ -1562,15 +1497,13 @@ let _core_op_lib = [
                     // Try to cast to JSON because it is requested
                     self.getOutput("out").value = JSON.parse(self.getParameter("content").value);
                     this.progress(100, OP_STATES.ok);
-                }
-                catch (e) {
+                } catch (e) {
                     // But maybe it won't work, fallback to direct output
                     console.error("Cast to JSON couldn't be performed.");
                     notify().error("Cast to JSON couldn't be performed.");
                     this.progress(100, OP_STATES.ko);
                 }
-            }
-            else {
+            } else {
                 // Don't cast to JSON
                 self.getOutput("out").value = self.getParameter("content").value;
                 this.progress(100, OP_STATES.ok);

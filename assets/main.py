@@ -1,5 +1,5 @@
 """
-Copyright 2018 CS Systèmes d'Information
+Copyright 2018-2019 CS Systèmes d'Information
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -110,8 +110,7 @@ def fetch_repo(repository_info):
     if url[0] == "/":
         # Repository is a local path
         try:
-            shutil.rmtree("%s/%s" % (FETCH_VT_PATH, vt_name),
-                          ignore_errors=True)
+            shutil.rmtree("%s/vt-%s" % (FETCH_VT_PATH, vt_name), ignore_errors=True)
             shutil.copytree(url, "%s/vt-%s" % (FETCH_VT_PATH, vt_name))
             commit_ref = "local_changes"
         except Exception as e:
